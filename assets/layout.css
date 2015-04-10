@@ -5,7 +5,7 @@
 html,
 body {
   height: 100%;
-  background-color: #333;
+  background-color: #453088;
 }
 
 body {
@@ -34,6 +34,9 @@ body {
 .cover-container {
   margin-right: auto;
   margin-left: auto;
+}
+.cover-heading {
+  margin-bottom:40px;
 }
 /* Padding for spacing */
 
