@@ -248,7 +248,8 @@ angular.module('smartArea', [])
              */
             $scope.dropdown.selected = function(item){
                 if($scope.dropdown.customSelect !== null){
-                    addSelectedDropdownText($scope.dropdown.customSelect(item), true);
+                    var append = $scope.dropdown.mode === 'append';
+                    addSelectedDropdownText($scope.dropdown.customSelect(item), append);
                 }else{
                     addSelectedDropdownText(item.display);
                 }
@@ -268,13 +269,18 @@ angular.module('smartArea', [])
              * @param append Whether it should be appended or replace the last word
              */
             function addSelectedDropdownText(selectedWord, append){
+
+                $scope.dropdown.showFilter = false;
+                $scope.dropdown.filter = '';
+
                 var text = $scope.areaData,
                     position = $element[0].selectionEnd,
                     lastWord = text.substr(0, position).split(/[\s\b{}]/),
                     remove = lastWord[lastWord.length - 1].length;
 
-                $scope.dropdown.showFilter = false;
-                $scope.dropdown.filter = '';
+                if(!append && $scope.dropdown.match){
+                    selectedWord = selectedWord.substr($scope.dropdown.match.length);
+                }
 
                 if(append || remove < 0){
                     remove = 0;
@@ -334,18 +340,26 @@ angular.module('smartArea', [])
              */
             function triggerDropdownAdvanced(){
                 $scope.dropdown.showFilter = false;
+                $scope.dropdown.match = false;
                 $scope.areaConfig.dropdown.forEach(function(element){
                     // Check if the trigger is under the cursor
                     var text = $scope.areaData,
                         position = $element[0].selectionEnd;
                     if(typeof(element.trigger) === 'string' && element.trigger === text.substr(position - element.trigger.length, element.trigger.length)){
                         // The cursor is exactly at the end of the trigger
-                        $scope.dropdown.content = element.list();
-                        $scope.dropdown.customSelect = element.onSelect;
-                        $scope.dropdown.showFilter = true;
-                        $timeout(function(){
-                            $scope.dropdown.filterElement.focus();
-                        }, 10);
+
+                        element.list(function(data){
+                            $scope.dropdown.content = data;
+
+                            $scope.dropdown.customSelect = element.onSelect;
+                            $scope.dropdown.mode = element.mode || 'append';
+                            $scope.dropdown.match = '';
+                            $scope.dropdown.showFilter = element.filter || false;
+
+                            $timeout(function(){
+                                $scope.dropdown.filterElement.focus();
+                            }, 10);
+                        });
                     }else if(typeof(element.trigger) === 'object'){
                         // I need to get the index of the last match
                         var searchable = text.substr(0, position),
@@ -361,9 +375,15 @@ angular.module('smartArea', [])
                             }
                         }
                         if(found){
-                            $scope.dropdown.content = element.list(match);
-                            $scope.dropdown.customSelect = element.onSelect;
-                            $scope.dropdown.showFilter = true;
+                            element.list(match, function(data){
+                                $scope.dropdown.content = data;
+
+                                $scope.dropdown.customSelect = element.onSelect;
+                                $scope.dropdown.mode = element.mode || 'append';
+                                $scope.dropdown.match = match[1];
+                                $scope.dropdown.showFilter = element.filter || false;
+                            });
+
                         }
                     }
                 });
