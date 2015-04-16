@@ -12,6 +12,16 @@
 
 ## Getting started
 
+Get a copy of `smart-area` either by [Downloading the files](https://github.com/aurbano/smart-area/archive/master.zip), or using a package manager:
+
+```sh
+bower install --save smart-area
+```
+
+```sh
+npm install --save smart-area
+```
+
 To setup smartArea on an element simply add the attribute:
 
 ```html
