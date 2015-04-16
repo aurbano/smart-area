@@ -155,11 +155,11 @@ This is the only visible element created by the directive, `smart-area` doesn't 
 The dropdown is generated with the following markup:
 
 ```html
-<div class="sa-dropdown" ng-show="dropdown.content.length > 0">
-  <input type="text" class="form-control" ng-model="dropdown.filter" ng-show="dropdown.showFilter"/>
+<div class="sa-dropdown">
+  <input type="text" class="form-control"/>
   <ul class="dropdown-menu" role="menu" style="position:static">
     <li ng-repeat="element in dropdown.content | filter:dropdown.filter" role="presentation">
-      <a href="" role="menuitem" ng-click="dropdown.selected(element)" ng-class="{active: $index == dropdown.current}" ng-bind-html="element.display"></a>
+      <a href="" role="menuitem"></a>
     </li>
   </ul>
 </div>
