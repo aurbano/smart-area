@@ -33,6 +33,8 @@ All of these examples use the same HTML markup, only the configuration changes.
 
 #### User mentions
 
+[Test in Plunkr](http://embed.plnkr.co/tu74kf/)
+
 ```js
 $scope.areaConfig = {
   dropdown: [{
