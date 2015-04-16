@@ -150,5 +150,27 @@ $scope.areaConfig = {
 ## CSS
 The directive doesn't force any styles on the dropdown or textareas so that you can fully integrate it with your design. I would recommend using the stylesheet from the repo, and then modifiying to suit your needs.
 
+### Dropdown element
+This is the only visible element created by the directive, `smart-area` doesn't include any styling, it only has some layouting CSS.
+The dropdown is generated with the following markup:
+
+```html
+<div class="sa-dropdown" ng-show="dropdown.content.length > 0">
+  <input type="text" class="form-control" ng-model="dropdown.filter" ng-show="dropdown.showFilter"/>
+  <ul class="dropdown-menu" role="menu" style="position:static">
+    <li ng-repeat="element in dropdown.content | filter:dropdown.filter" role="presentation">
+      <a href="" role="menuitem" ng-click="dropdown.selected(element)" ng-class="{active: $index == dropdown.current}" ng-bind-html="element.display"></a>
+    </li>
+  </ul>
+</div>
+```
+
+As you can see, it uses `bootstrap` CSS classes, so if you site uses it you'll be all set.
+Otherwise, create CSS styles for:
+
+* `input.form-control`
+* `ul.dropdown-menu` (and children)
+* `ul.dropdown-menu a.active`
+
 -----------
 *By [Alejandro U. Alvarez](http://urbanoalvarez.es) - AGPLv3 License*
