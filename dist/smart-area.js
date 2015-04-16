@@ -33,6 +33,7 @@ angular.module('smartArea', [])
                 'overflowX',
                 'overflowY',  // copy the scrollbar for IE
                 'color',
+                'height',
 
                 'borderTopWidth',
                 'borderRightWidth',
@@ -48,6 +49,7 @@ angular.module('smartArea', [])
                 'borderRightStyle',
                 'borderBottomStyle',
                 'borderLeftStyle',
+                'borderRadius',
 
                 'backgroundColor',
 
@@ -123,12 +125,12 @@ angular.module('smartArea', [])
 
             return mainWrap;
         },
-        controller: ['$scope', '$element', '$timeout', function($scope, $element, $timeout){
+        controller: ['$scope', '$element', '$timeout', '$sce', function($scope, $element, $timeout, $sce){
             /* +----------------------------------------------------+
              * +                     Scope Data                     +
              * +----------------------------------------------------+ */
-
-             $scope.fakeArea = $scope.areaData;
+             
+            $scope.fakeArea = $scope.areaData;
             $scope.dropdownContent = 'Dropdown';
             $scope.dropdown = {
                 content: [],
@@ -137,6 +139,8 @@ angular.module('smartArea', [])
                 select: null,
                 customSelect: null,
                 filter: '',
+                match: '',
+                mode: 'append',
                 showFilter: false,
                 filterElement: null
             };
@@ -165,9 +169,9 @@ angular.module('smartArea', [])
              */
             $scope.trackCaret = function(){
                 var text = $scope.areaData,
-                    position = $element[0].selectionEnd;
+                    position = getCharacterPosition();
 
-                $scope.fakeArea = text.substring(0, position) + '<span class="sa-tracking"></span>' + text.substring(position);
+                $scope.fakeArea = $sce.trustAsHtml(text.substring(0, position) + '<span class="sa-tracking"></span>' + text.substring(position));
 
                 // Tracking span
                 $timeout(function(){
@@ -274,12 +278,12 @@ angular.module('smartArea', [])
                 $scope.dropdown.filter = '';
 
                 var text = $scope.areaData,
-                    position = $element[0].selectionEnd,
+                    position = getCharacterPosition(),
                     lastWord = text.substr(0, position).split(/[\s\b{}]/),
                     remove = lastWord[lastWord.length - 1].length;
 
                 if(!append && $scope.dropdown.match){
-                    selectedWord = selectedWord.substr($scope.dropdown.match.length);
+                  remove = $scope.dropdown.match.length;
                 }
 
                 if(append || remove < 0){
@@ -290,12 +294,16 @@ angular.module('smartArea', [])
                 $scope.areaData = text.substr(0, position - remove) +
                     selectedWord +
                     text.substr(position);
+                    
+                if(!append && $scope.dropdown.match){
+                  position = position - $scope.dropdown.match.length + selectedWord.toString().length;
+                }
 
                 // Now reset the caret position
                 if($element[0].selectionStart) {
                     $timeout(function(){
                         $element[0].focus();
-                        $element[0].setSelectionRange(position - remove + selectedWord.length, position - remove + selectedWord.length);
+                        $element[0].setSelectionRange(position - remove + selectedWord.toString().length, position - remove + selectedWord.toString().length);
                         checkTriggers();
                     }, 100);
                 }
@@ -309,6 +317,10 @@ angular.module('smartArea', [])
             function highlightText(){
                 var text = $scope.areaData;
 
+                if(typeof($scope.areaConfig.autocomplete) === 'undefined' || $scope.areaConfig.autocomplete.length === 0){
+                    return;
+                }
+
                 $scope.areaConfig.autocomplete.forEach(function(autoList){
                     for(var i=0; i<autoList.words.length; i++){
                         if(typeof(autoList.words[i]) === "string"){
@@ -321,7 +333,7 @@ angular.module('smartArea', [])
                     }
                 });
                 // Add to the fakeArea
-                $scope.fakeArea = text;
+                $scope.fakeArea = $sce.trustAsHtml(text);
             }
 
             /**
@@ -341,15 +353,23 @@ angular.module('smartArea', [])
             function triggerDropdownAdvanced(){
                 $scope.dropdown.showFilter = false;
                 $scope.dropdown.match = false;
+
+                if(typeof($scope.areaConfig.dropdown) === 'undefined' || $scope.areaConfig.dropdown.length === 0){
+                    return;
+                }
+
                 $scope.areaConfig.dropdown.forEach(function(element){
                     // Check if the trigger is under the cursor
                     var text = $scope.areaData,
-                        position = $element[0].selectionEnd;
+                        position = getCharacterPosition();
                     if(typeof(element.trigger) === 'string' && element.trigger === text.substr(position - element.trigger.length, element.trigger.length)){
                         // The cursor is exactly at the end of the trigger
 
                         element.list(function(data){
-                            $scope.dropdown.content = data;
+                            $scope.dropdown.content = data.map(function(el){
+                              el.display = $sce.trustAsHtml(el.display);
+                              return el;
+                            });
 
                             $scope.dropdown.customSelect = element.onSelect;
                             $scope.dropdown.mode = element.mode || 'append';
@@ -376,7 +396,10 @@ angular.module('smartArea', [])
                         }
                         if(found){
                             element.list(match, function(data){
-                                $scope.dropdown.content = data;
+                                $scope.dropdown.content = data.map(function(el){
+                                  el.display = $sce.trustAsHtml(el.display);
+                                  return el;
+                                });
 
                                 $scope.dropdown.customSelect = element.onSelect;
                                 $scope.dropdown.mode = element.mode || 'append';
@@ -398,7 +421,7 @@ angular.module('smartArea', [])
                 var autocomplete = [],
                     suggestions = [],
                     text = $scope.areaData,
-                    position = $element[0].selectionEnd,
+                    position = getCharacterPosition(),
                     lastWord = text.substr(0, position).split(/[\s\b{}]/);
 
                 // Get the last typed word
@@ -434,6 +457,17 @@ angular.module('smartArea', [])
                 $scope.dropdown.current = 0;
                 $scope.dropdown.content = suggestions;
             }
+            
+            /**
+             * Get Character count on an editable field
+             * http://stackoverflow.com/questions/4767848/get-caret-cursor-position-in-contenteditable-area-containing-html-content
+             */
+            function getCharacterPosition() {
+              var el = $element[0];
+              if (typeof(el.selectionEnd) == "number") {
+                return el.selectionEnd; 
+              }
+          }
 
             /* +----------------------------------------------------+
              * +                   Event Binding                    +
