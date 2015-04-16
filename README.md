@@ -1,4 +1,4 @@
-![smart-area](https://raw.githubusercontent.com/aurbano/smart-area/master/assets/logo-200.png)  smart-area
+![smart-area](https://raw.githubusercontent.com/aurbano/smart-area/master/assets/logo.png)
 =
 
 > Textareas on Steroids - just adding an AngularJS directive
