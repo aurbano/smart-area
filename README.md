@@ -31,7 +31,7 @@ To setup smartArea on an element simply add the attribute:
 
 All of these examples use the same HTML markup, only the configuration changes.
 
-#### User mentions and hashtag suggestions
+#### User mentions
 
 ```js
 $scope.areaConfig = {
