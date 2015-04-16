@@ -7,6 +7,7 @@
     color: inherit;
     resize: none;
     overflow: hidden;
+    z-index:0;
 }
 
 textarea.sa-realArea{
@@ -30,6 +31,7 @@ textarea.sa-realArea:hover, textarea.sa-realArea:focus{
     position: absolute;
     min-width: 100px;
     text-align: left;
+    z-index:1;
 }
 .sa-dropdown .dropdown-menu{
     display:block;
