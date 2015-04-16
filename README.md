@@ -1,4 +1,4 @@
-![smart-area](https://raw.githubusercontent.com/aurbano/smart-area/master/assets/logo-200.png)  smart-area
+![smart-area](https://raw.githubusercontent.com/aurbano/smart-area/master/assets/logo.png)
 =
 
 > Textareas on Steroids - just adding an AngularJS directive
@@ -11,6 +11,16 @@
 * Minimal configuration required, but highly customizable if necessary
 
 ## Getting started
+
+Get a copy of `smart-area` either by [Downloading the files](https://github.com/aurbano/smart-area/archive/master.zip), or using a package manager:
+
+```sh
+bower install --save smart-area
+```
+
+```sh
+npm install --save smart-area
+```
 
 To setup smartArea on an element simply add the attribute:
 
