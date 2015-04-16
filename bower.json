@@ -1,0 +1,27 @@
+{
+  "name": "smart-area",
+  "version": "1.0.0",
+  "homepage": "https://github.com/aurbano/smart-area",
+  "authors": [
+    "Alejandro U. Alvarez <aluralma@gmail.com>"
+  ],
+  "description": "Autocomplete, dropdowns, mentions and other goodies to html textareas",
+  "main": "dist/smart-area.js",
+  "keywords": [
+    "directive",
+    "angular",
+    "textarea",
+    "autocomplete",
+    "mention",
+    "hashtag",
+    "dropdown"
+  ],
+  "license": "AGPLv3",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
