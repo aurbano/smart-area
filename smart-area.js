@@ -17,13 +17,13 @@ angular.module('smartArea', [])
             areaData: '=ngModel'
         },
         replace: true,
-        link: function(scope, textArea, attrs){
+        link: function(scope, textArea){
             if(textArea[0].tagName.toLowerCase() !== 'textarea'){
                 console.warn("smartArea can only be used on textareas");
                 return false;
             }
 
-            // Dropdown positioning inspired by
+            // Caret tracking inspired by
             // https://github.com/component/textarea-caret-position
             // Properties to be copied over from the textarea
             var properties = [
@@ -85,8 +85,11 @@ angular.module('smartArea', [])
             scope.fakeAreaElement = angular.element($compile('<div class="sa-fakeArea" ng-trim="false" ng-bind-html="fakeArea"></div>')(scope))
                 .appendTo(mainWrap);
 
-            scope.dropdown.element = angular.element($compile('<div class="sa-dropdown" ng-show="dropdown.content.length > 0"><ul class="dropdown-menu" role="menu" style="position:static"><li ng-repeat="element in dropdown.content" role="presentation"><a href="" role="menuitem" ng-click="dropdown.selected(element)" ng-class="{active: $index == dropdown.current}" ng-bind-html="element.display"></a></li></ul></div>')(scope))
+            scope.dropdown.element = angular.element($compile('<div class="sa-dropdown" ng-show="dropdown.content.length > 0"><input type="text" class="form-control" ng-model="dropdown.filter" ng-show="dropdown.showFilter"/><ul class="dropdown-menu" role="menu" style="position:static"><li ng-repeat="element in dropdown.content | filter:dropdown.filter" role="presentation"><a href="" role="menuitem" ng-click="dropdown.selected(element)" ng-class="{active: $index == dropdown.current}" ng-bind-html="element.display"></a></li></ul></div>')(scope))
                 .appendTo(mainWrap);
+
+            scope.dropdown.filterElement = scope.dropdown.element.find('input');
+            scope.dropdown.filterElement.bind('keydown', scope.keyboardEvents);
 
             // Default textarea css for the div
             scope.fakeAreaElement.css('whiteSpace', 'pre-wrap');
@@ -121,15 +124,29 @@ angular.module('smartArea', [])
             return mainWrap;
         },
         controller: ['$scope', '$element', '$timeout', function($scope, $element, $timeout){
-            $scope.fakeArea = $scope.areaData;
+            /* +----------------------------------------------------+
+             * +                     Scope Data                     +
+             * +----------------------------------------------------+ */
+
+             $scope.fakeArea = $scope.areaData;
             $scope.dropdownContent = 'Dropdown';
             $scope.dropdown = {
                 content: [],
                 element: null,
                 current: 0,
                 select: null,
-                customSelect: null
+                customSelect: null,
+                filter: '',
+                showFilter: false,
+                filterElement: null
             };
+
+            /* +----------------------------------------------------+
+             * +                   Scope Watches                    +
+             * +----------------------------------------------------+ */
+            $scope.$watch('dropdown.filter', function(){
+                $scope.dropdown.current = 0;
+            });
 
             $scope.$watch('areaData', function(){
                 $scope.trackCaret();
@@ -138,7 +155,14 @@ angular.module('smartArea', [])
                 checkTriggers();
             });
 
-            // Update the text and add the tracking span
+            /* +----------------------------------------------------+
+             * +                  Scope Functions                   +
+             * +----------------------------------------------------+ */
+
+            /**
+             * Update the Dropdown position according to the current caret position
+             * on the textarea
+             */
             $scope.trackCaret = function(){
                 var text = $scope.areaData,
                     position = $element[0].selectionEnd;
@@ -160,13 +184,13 @@ angular.module('smartArea', [])
                 }, 0);
             };
 
-            $element.bind('keyup click focus', function (event) {
-                $timeout(function(){
-                    $scope.trackCaret();
-                }, 0);
-            });
-
-            $element.bind('keydown', function(event){
+            /**
+             * Keyboard event reacting. This function is triggered by
+             * keydown events in the dropdown filter and the main textarea
+             *
+             * @param event JavaScript event
+             */
+            $scope.keyboardEvents = function(event){
                 if($scope.dropdown.content.length > 0) {
                     var code = event.keyCode || event.which;
                     if (code === 13) { // Enter
@@ -174,29 +198,54 @@ angular.module('smartArea', [])
                         event.stopPropagation();
                         // Add the selected word from the Dropdown
                         // to the areaData in the current position
-                        $scope.dropdown.selected($scope.dropdown.content[$scope.dropdown.current]);
+                        $timeout(function(){
+                            $scope.dropdown.selected($scope.dropdown.content[$scope.dropdown.current]);
+                        },0);
                     }else if(code === 38){ // Up
                         event.preventDefault();
                         event.stopPropagation();
-                        $scope.dropdown.current--;
-                        if($scope.dropdown.current < 0){
-                            $scope.dropdown.current = $scope.dropdown.content.length - 1; // Wrap around
-                        }
+                        $timeout(function(){
+                            $scope.dropdown.current--;
+                            if($scope.dropdown.current < 0){
+                                $scope.dropdown.current = $scope.dropdown.content.length - 1; // Wrap around
+                            }
+                        },0);
                     }else if(code === 40){ // Down
                         event.preventDefault();
                         event.stopPropagation();
-                        $scope.dropdown.current++;
-                        if($scope.dropdown.current >= $scope.dropdown.content.length){
-                            $scope.dropdown.current = 0; // Wrap around
-                        }
+                        $timeout(function(){
+                            $scope.dropdown.current++;
+                            if($scope.dropdown.current >= $scope.dropdown.content.length){
+                                $scope.dropdown.current = 0; // Wrap around
+                            }
+                        },0);
                     }else if(code === 27){ // Esc
                         event.preventDefault();
                         event.stopPropagation();
-                        $scope.dropdown.content = [];
+                        $timeout(function(){
+                            $scope.dropdown.content = [];
+                            $element[0].focus();
+                        },0);
+                    }else if(code === 8){ // Backspace
+                        if($scope.dropdown.filter.length < 1){
+                            $timeout(function(){
+                                $scope.dropdown.content = [];
+                                $element[0].focus();
+                            },0);
+                        }else{
+                            event.stopPropagation();
+                        }
+                    }else{
+                        $scope.dropdown.filterElement.focus();
                     }
                 }
-            });
+            };
 
+            /**
+             * Add an item to the textarea, this is called
+             * when selecting an element from the dropdown.
+             * @param item Selected object
+             */
             $scope.dropdown.selected = function(item){
                 if($scope.dropdown.customSelect !== null){
                     addSelectedDropdownText($scope.dropdown.customSelect(item), true);
@@ -206,11 +255,26 @@ angular.module('smartArea', [])
                 $scope.dropdown.content = [];
             };
 
+            /* +----------------------------------------------------+
+             * +                Internal Functions                  +
+             * +----------------------------------------------------+ */
+
+            /**
+             * Add text to the textarea, this handles positioning the text
+             * at the caret position, and also either replacing the last word
+             * or appending as new content.
+             *
+             * @param selectedWord Word to add to the textarea
+             * @param append Whether it should be appended or replace the last word
+             */
             function addSelectedDropdownText(selectedWord, append){
                 var text = $scope.areaData,
                     position = $element[0].selectionEnd,
                     lastWord = text.substr(0, position).split(/[\s\b{}]/),
                     remove = lastWord[lastWord.length - 1].length;
+
+                $scope.dropdown.showFilter = false;
+                $scope.dropdown.filter = '';
 
                 if(append || remove < 0){
                     remove = 0;
@@ -224,6 +288,7 @@ angular.module('smartArea', [])
                 // Now reset the caret position
                 if($element[0].selectionStart) {
                     $timeout(function(){
+                        $element[0].focus();
                         $element[0].setSelectionRange(position - remove + selectedWord.length, position - remove + selectedWord.length);
                         checkTriggers();
                     }, 100);
@@ -231,7 +296,10 @@ angular.module('smartArea', [])
 
             }
 
-            /* ---- HELPER FUNCTIONS ---- */
+            /**
+             * Perform the "syntax" highlighting of autocomplete words that have
+             * a cssClass specified.
+             */
             function highlightText(){
                 var text = $scope.areaData;
 
@@ -250,12 +318,22 @@ angular.module('smartArea', [])
                 $scope.fakeArea = text;
             }
 
+            /**
+             * Check all the triggers
+             */
             function checkTriggers(){
                 triggerDropdownAutocomplete();
                 triggerDropdownAdvanced();
             }
 
+            /**
+             * Trigger the advanced dropdown system, this will check
+             * all the specified triggers in the configuration object under dropdown,
+             * and if any of them match it will call it's list() function and add the
+             * elements returned from it to the dropdown.
+             */
             function triggerDropdownAdvanced(){
+                $scope.dropdown.showFilter = false;
                 $scope.areaConfig.dropdown.forEach(function(element){
                     // Check if the trigger is under the cursor
                     var text = $scope.areaData,
@@ -264,6 +342,10 @@ angular.module('smartArea', [])
                         // The cursor is exactly at the end of the trigger
                         $scope.dropdown.content = element.list();
                         $scope.dropdown.customSelect = element.onSelect;
+                        $scope.dropdown.showFilter = true;
+                        $timeout(function(){
+                            $scope.dropdown.filterElement.focus();
+                        }, 10);
                     }else if(typeof(element.trigger) === 'object'){
                         // I need to get the index of the last match
                         var searchable = text.substr(0, position),
@@ -281,11 +363,16 @@ angular.module('smartArea', [])
                         if(found){
                             $scope.dropdown.content = element.list(match);
                             $scope.dropdown.customSelect = element.onSelect;
+                            $scope.dropdown.showFilter = true;
                         }
                     }
                 });
             }
 
+            /**
+             * Trigger a simple autocomplete, this checks the last word and determines
+             * whether any word on the autocomplete lists matches it
+             */
             function triggerDropdownAutocomplete(){
                 // First check with the autocomplete words (the ones that are not objects
                 var autocomplete = [],
@@ -327,6 +414,18 @@ angular.module('smartArea', [])
                 $scope.dropdown.current = 0;
                 $scope.dropdown.content = suggestions;
             }
+
+            /* +----------------------------------------------------+
+             * +                   Event Binding                    +
+             * +----------------------------------------------------+ */
+
+            $element.bind('keyup click focus', function () {
+                $timeout(function(){
+                    $scope.trackCaret();
+                }, 0);
+            });
+
+            $element.bind('keydown', $scope.keyboardEvents);
         }]
     };
 });
