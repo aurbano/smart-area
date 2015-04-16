@@ -174,5 +174,25 @@ Otherwise, create CSS styles for:
 * `ul.dropdown-menu` (and children)
 * `ul.dropdown-menu a.active`
 
+## Extras
+
+### Autogrow
+If you want to have the textarea autogrow as user types I recommend using `smart-area` coupled with another directive. I'm using [angular-elastic](https://github.com/monospaced/angular-elastic) on a project and it works nicely with it:
+
+```html
+<textarea
+  name="sampleTextarea"
+  id="sampleTextarea"
+  class="form-control code"
+  ng-model="myModel"
+  ng-trim="false"
+  spellcheck="false"
+  
+  msd-elastic // Directive for autogrowing text areas
+
+  smart-area="areaConfig">
+</textarea>
+```
+
 -----------
 *By [Alejandro U. Alvarez](http://urbanoalvarez.es) - AGPLv3 License*
