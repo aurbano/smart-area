@@ -172,7 +172,7 @@ angular.module('smartArea', [])
                     position = getCharacterPosition();
 
                 $scope.fakeArea = $sce.trustAsHtml(text.substring(0, position) + '<span class="sa-tracking"></span>' + text.substring(position));
-
+                
                 // Tracking span
                 $timeout(function(){
                     var span = $scope.fakeAreaElement.find('span.sa-tracking');
@@ -411,6 +411,15 @@ angular.module('smartArea', [])
                     }
                 });
             }
+            
+            /**
+             * Set the scroll on the fake area
+             */ 
+            function resetScroll(){
+              $timeout(function(){
+                $scope.fakeAreaElement.scrollTop($element.scrollTop());
+              }, 5);
+            }
 
             /**
              * Trigger a simple autocomplete, this checks the last word and determines
@@ -479,7 +488,10 @@ angular.module('smartArea', [])
                 }, 0);
             });
 
-            $element.bind('keydown', $scope.keyboardEvents);
+            $element.bind('keydown', function(event){
+              resetScroll();
+              $scope.keyboardEvents(event);
+            });
         }]
     };
 });
