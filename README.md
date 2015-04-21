@@ -189,6 +189,8 @@ Otherwise, create CSS styles for:
 ### Autogrow
 If you want to have the textarea autogrow as user types I recommend using `smart-area` coupled with another directive. I'm using [angular-elastic](https://github.com/monospaced/angular-elastic) on a project and it works nicely with it:
 
+> [Plunkr demo](http://plnkr.co/edit/ABGPRIshuDk3mDcNgZzg)
+
 ```html
 <textarea
   name="sampleTextarea"
