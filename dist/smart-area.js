@@ -446,11 +446,13 @@ angular.module('smartArea', [])
                     });
                 });
 
-                $scope.areaConfig.dropdown.forEach(function(element){
-                    if(typeof(element.trigger) === 'string' && autocomplete.indexOf(element.trigger) < 0){
-                        autocomplete.push(element.trigger);
-                    }
-                });
+                if ($scope.areaConfig.dropdown !== undefined){
+                    $scope.areaConfig.dropdown.forEach(function(element){
+                        if(typeof(element.trigger) === 'string' && autocomplete.indexOf(element.trigger) < 0){
+                            autocomplete.push(element.trigger);
+                        }
+                    });
+                }
 
                 // Now with the list, filter and return
                 autocomplete.forEach(function(word){
