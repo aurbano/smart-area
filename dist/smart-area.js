@@ -456,7 +456,7 @@ angular.module('smartArea', [])
                 autocomplete.forEach(function(word){
                     if(lastWord.length < word.length && word.toLowerCase().substr(0, lastWord.length) === lastWord.toLowerCase()){
                         suggestions.push({
-                            display: word,
+                            display: $sce.trustAsHtml(word),
                             data: null
                         });
                     }
