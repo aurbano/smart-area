@@ -6,7 +6,7 @@
     "Alejandro U. Alvarez <aluralma@gmail.com>"
   ],
   "description": "Autocomplete, dropdowns, mentions and other goodies to html textareas",
-  "main": "dist/smart-area.js",
+  "main": ["dist/smart-area.js", "dist/smart-area.css"],
   "keywords": [
     "directive",
     "angular",
