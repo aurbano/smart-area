@@ -148,10 +148,6 @@ angular.module('smartArea', [])
             /* +----------------------------------------------------+
              * +                   Scope Watches                    +
              * +----------------------------------------------------+ */
-            // $scope.$watch('dropdown.filter', function(){
-            //     $scope.dropdown.current = 0;
-            // });
-
             $scope.$watch('areaData', function(){
                 $scope.trackCaret();
 
