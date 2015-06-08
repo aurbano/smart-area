@@ -87,7 +87,7 @@ angular.module('smartArea', [])
             scope.fakeAreaElement = angular.element($compile('<div class="sa-fakeArea" ng-trim="false" ng-bind-html="fakeArea"></div>')(scope))
                 .appendTo(mainWrap);
 
-            scope.dropdown.element = angular.element($compile('<div class="sa-dropdown" ng-show="dropdown.content.length > 0"><input type="text" class="form-control" ng-model="dropdown.filter" ng-show="dropdown.showFilter"/><ul class="dropdown-menu" role="menu" style="position:static"><li ng-repeat="element in dropdown.content | filter:dropdown.filter" role="presentation"><a href="" role="menuitem" ng-click="dropdown.selected(element)" ng-class="{active: $index == dropdown.current}" ng-bind-html="element.display"></a></li></ul></div>')(scope))
+            scope.dropdown.element = angular.element($compile('<div class="sa-dropdown" ng-show="dropdown.content.length > 0"><input type="text" class="form-control" ng-show="dropdown.showFilter"/><ul class="dropdown-menu" role="menu" style="position:static"><li ng-repeat="element in dropdown.content" role="presentation"><a href="" role="menuitem" ng-click="dropdown.selected(element)" ng-class="{active: $index == dropdown.current}" ng-bind-html="element.display"></a></li></ul></div>')(scope))
                 .appendTo(mainWrap);
 
             scope.dropdown.filterElement = scope.dropdown.element.find('input');
@@ -148,10 +148,6 @@ angular.module('smartArea', [])
             /* +----------------------------------------------------+
              * +                   Scope Watches                    +
              * +----------------------------------------------------+ */
-            $scope.$watch('dropdown.filter', function(){
-                $scope.dropdown.current = 0;
-            });
-
             $scope.$watch('areaData', function(){
                 $scope.trackCaret();
 
@@ -230,15 +226,6 @@ angular.module('smartArea', [])
                             $scope.dropdown.content = [];
                             $element[0].focus();
                         },0);
-                    }else if(code === 8){ // Backspace
-                        if($scope.dropdown.filter.length < 1){
-                            $timeout(function(){
-                                $scope.dropdown.content = [];
-                                $element[0].focus();
-                            },0);
-                        }else{
-                            event.stopPropagation();
-                        }
                     }else{
                         $scope.dropdown.filterElement.focus();
                     }
@@ -275,7 +262,6 @@ angular.module('smartArea', [])
             function addSelectedDropdownText(selectedWord, append){
 
                 $scope.dropdown.showFilter = false;
-                $scope.dropdown.filter = '';
 
                 var text = $scope.areaData,
                     position = getCharacterPosition(),
@@ -446,17 +432,19 @@ angular.module('smartArea', [])
                     });
                 });
 
-                $scope.areaConfig.dropdown.forEach(function(element){
-                    if(typeof(element.trigger) === 'string' && autocomplete.indexOf(element.trigger) < 0){
-                        autocomplete.push(element.trigger);
-                    }
-                });
+                if ($scope.areaConfig.dropdown !== undefined){
+                    $scope.areaConfig.dropdown.forEach(function(element){
+                        if(typeof(element.trigger) === 'string' && autocomplete.indexOf(element.trigger) < 0){
+                            autocomplete.push(element.trigger);
+                        }
+                    });
+                }
 
                 // Now with the list, filter and return
                 autocomplete.forEach(function(word){
                     if(lastWord.length < word.length && word.toLowerCase().substr(0, lastWord.length) === lastWord.toLowerCase()){
                         suggestions.push({
-                            display: word,
+                            display: $sce.trustAsHtml(word),
                             data: null
                         });
                     }
