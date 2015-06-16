@@ -208,3 +208,5 @@ If you want to have the textarea autogrow as user types I recommend using `smart
 
 -----------
 *By [Alejandro U. Alvarez](http://urbanoalvarez.es) - AGPLv3 License*
+
+[![Analytics](https://ga-beacon.appspot.com/UA-3181088-16/smart-area/readme)](https://github.com/aurbano)
