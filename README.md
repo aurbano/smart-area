@@ -22,6 +22,8 @@ bower install --save smart-area
 npm install --save smart-area
 ```
 
+*It requires jQuery to function properly at the moment, I'll try to make it depend only on jqLite so it works on vanilla Angularjs.*
+
 To setup smartArea on an element simply add the attribute:
 
 ```html
