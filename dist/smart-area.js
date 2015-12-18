@@ -9,7 +9,7 @@
  */
 
 angular.module('smartArea', [])
-    .directive('smartArea', function($compile) {
+    .directive('smartArea', ['$compile', function($compile) {
     return {
         restrict: 'A',
         scope: {
@@ -129,7 +129,7 @@ angular.module('smartArea', [])
             /* +----------------------------------------------------+
              * +                     Scope Data                     +
              * +----------------------------------------------------+ */
-             
+
             $scope.fakeArea = $scope.areaData;
             $scope.dropdownContent = 'Dropdown';
             $scope.dropdown = {
@@ -168,7 +168,7 @@ angular.module('smartArea', [])
                     position = getCharacterPosition();
 
                 $scope.fakeArea = $sce.trustAsHtml(text.substring(0, position) + '<span class="sa-tracking"></span>' + text.substring(position));
-                
+
                 // Tracking span
                 $timeout(function(){
                     var span = $scope.fakeAreaElement.find('span.sa-tracking');
@@ -280,7 +280,7 @@ angular.module('smartArea', [])
                 $scope.areaData = text.substr(0, position - remove) +
                     selectedWord +
                     text.substr(position);
-                    
+
                 if(!append && $scope.dropdown.match){
                   position = position - $scope.dropdown.match.length + selectedWord.toString().length;
                 }
@@ -397,10 +397,10 @@ angular.module('smartArea', [])
                     }
                 });
             }
-            
+
             /**
              * Set the scroll on the fake area
-             */ 
+             */
             function resetScroll(){
               $timeout(function(){
                 $scope.fakeAreaElement.scrollTop($element.scrollTop());
@@ -454,7 +454,7 @@ angular.module('smartArea', [])
                 $scope.dropdown.current = 0;
                 $scope.dropdown.content = suggestions;
             }
-            
+
             /**
              * Get Character count on an editable field
              * http://stackoverflow.com/questions/4767848/get-caret-cursor-position-in-contenteditable-area-containing-html-content
@@ -462,7 +462,7 @@ angular.module('smartArea', [])
             function getCharacterPosition() {
               var el = $element[0];
               if (typeof(el.selectionEnd) == "number") {
-                return el.selectionEnd; 
+                return el.selectionEnd;
               }
           }
 
@@ -482,4 +482,4 @@ angular.module('smartArea', [])
             });
         }]
     };
-});
+}]);
