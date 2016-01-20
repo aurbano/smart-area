@@ -369,7 +369,8 @@ angular.module('smartArea', [])
                     }else if(typeof(element.trigger) === 'object'){
                         // I need to get the index of the last match
                         var searchable = text.substr(0, position),
-                            match, found = false, lastPosition = 0;
+                            match, found = false, lastPosition = -1;
+			element.trigger.lastIndex = 0;
                         while ((match = element.trigger.exec(searchable)) !== null){
                             if(match.index === lastPosition){
                                 break;
