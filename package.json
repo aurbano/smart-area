@@ -1,6 +1,6 @@
 {
   "name": "smart-area",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Autocomplete, dropdowns, mentions and other goodies to html textareas",
   "main": "dist/smart-area.min.js",
   "scripts": {
