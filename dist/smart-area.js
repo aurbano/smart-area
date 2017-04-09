@@ -282,15 +282,12 @@ angular.module('smartArea', [])
                     selectedWord +
                     text.substr(position);
 
-                if(!append && $scope.dropdown.match){
-                  position = position - $scope.dropdown.match.length + selectedWord.toString().length;
-                }
-
                 // Now reset the caret position
                 if($element[0].selectionStart) {
                     $timeout(function(){
+                        var caretPosition = position - remove + selectedWord.toString().length;
                         $element[0].focus();
-                        $element[0].setSelectionRange(position - remove + selectedWord.toString().length, position - remove + selectedWord.toString().length);
+                        $element[0].setSelectionRange(caretPosition, caretPosition);
                         checkTriggers();
                     }, 100);
                 }
@@ -371,7 +368,7 @@ angular.module('smartArea', [])
                         // I need to get the index of the last match
                         var searchable = text.substr(0, position),
                             match, found = false, lastPosition = -1;
-			element.trigger.lastIndex = 0;
+                        element.trigger.lastIndex = 0;
                         while ((match = element.trigger.exec(searchable)) !== null){
                             if(match.index === lastPosition){
                                 break;
