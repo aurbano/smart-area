@@ -228,6 +228,7 @@ angular.module('smartArea', [])
                         },0);
                     }else{
                         $scope.dropdown.filterElement.focus();
+			checkTriggers();
                     }
                 }
             };
