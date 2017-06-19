@@ -466,8 +466,10 @@ angular.module('smartArea', [])
               }
           }
 
-            function htmlEncode(html) {
-                return $('<div>').text(html).html();
+            function htmlEncode(str) {
+                var div = document.createElement("div");
+                div[("textContent" in div) ? "textContent" : "innerText"] = str;
+                return div.innerHTML;
             }
 
             /* +----------------------------------------------------+
