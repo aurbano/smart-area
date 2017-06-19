@@ -130,7 +130,7 @@ angular.module('smartArea', [])
              * +                     Scope Data                     +
              * +----------------------------------------------------+ */
 
-            $scope.fakeArea = $scope.areaData;
+            $scope.fakeArea = htmlEncode($scope.areaData);
             $scope.dropdownContent = 'Dropdown';
             $scope.dropdown = {
                 content: [],
@@ -167,7 +167,7 @@ angular.module('smartArea', [])
                 var text = $scope.areaData,
                     position = getCharacterPosition();
 
-                $scope.fakeArea = $sce.trustAsHtml(text.substring(0, position) + '<span class="sa-tracking"></span>' + text.substring(position));
+                $scope.fakeArea = $sce.trustAsHtml(htmlEncode(text.substring(0, position)) + '<span class="sa-tracking"></span>' + htmlEncode(text.substring(position)));
 
                 // Tracking span
                 $timeout(function(){
@@ -299,7 +299,8 @@ angular.module('smartArea', [])
              * a cssClass specified.
              */
             function highlightText(){
-                var text = $scope.areaData;
+                var text = $scope.areaData,
+                    html = htmlEncode(text);
 
                 if(typeof($scope.areaConfig.autocomplete) === 'undefined' || $scope.areaConfig.autocomplete.length === 0){
                     return;
@@ -308,16 +309,16 @@ angular.module('smartArea', [])
                 $scope.areaConfig.autocomplete.forEach(function(autoList){
                     for(var i=0; i<autoList.words.length; i++){
                         if(typeof(autoList.words[i]) === "string"){
-                            text = text.replace(new RegExp("([^\\w]|\\b)("+autoList.words[i]+")([^\\w]|\\b)", 'g'), '$1<span class="'+autoList.cssClass+'">$2</span>$3');
+                            html = html.replace(new RegExp("([^\\w]|\\b)("+autoList.words[i]+")([^\\w]|\\b)", 'g'), '$1<span class="'+autoList.cssClass+'">$2</span>$3');
                         }else{
-                            text = text.replace(autoList.words[i], function(match){
+                            html = html.replace(autoList.words[i], function(match){
                                 return '<span class="'+autoList.cssClass+'">'+match+'</span>';
                             });
                         }
                     }
                 });
                 // Add to the fakeArea
-                $scope.fakeArea = $sce.trustAsHtml(text);
+                $scope.fakeArea = $sce.trustAsHtml(html);
             }
 
             /**
@@ -464,6 +465,10 @@ angular.module('smartArea', [])
                 return el.selectionEnd;
               }
           }
+
+            function htmlEncode(html) {
+                return $('<div>').text(html).html();
+            }
 
             /* +----------------------------------------------------+
              * +                   Event Binding                    +
